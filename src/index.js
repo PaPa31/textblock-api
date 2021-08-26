@@ -3,32 +3,27 @@ const { ApolloServer, gql } = require('apollo-server-express')
 require('dotenv').config()
 
 const db = require('./db')
+const models = require('./models')
 
 // Запускаем сервер на порте, указанном в файле .env, или на порте 4000
 const port = process.env.PORT || 4000
 // Сохраняем значение DB_HOST в виде переменной
 const DB_HOST = process.env.DB_HOST
 
-let notes = [
-    {id: '1', content: 'This is a note', author: 'Pa Pa'},
-    {id: '2', content: 'This is a another note', author: 'Mar Ka'},
-    {id: '3', content: 'Oh hey look, another note!', author: 'Chelsea'},
-]
-
 // Строим схему, используя язык схем GraphQL
 const typeDefs = gql`
     type Note {
-        id: ID!
-        content: String!
-        author: String!
+        id: ID
+        content: String
+        author: String
     }
     type Query {
-        hello: String!
-        notes:[Note!]!
-        note(id: ID!): Note!
+        hello: String
+        notes:[Note]
+        note(id: ID): Note
     }
     type Mutation {
-        newNote(content: String!): Note!
+        newNote(content: String!): Note
     }
 `
 
@@ -36,20 +31,19 @@ const typeDefs = gql`
 const resolvers = {
     Query: {
         hello: () => 'Hello World!',
-        notes: () => notes,
-        note: (parent, args) => {
-            return notes.find(note=>note.id===args.id)
+        notes: async () => {
+            return await models.Note.find()
+        },
+        note: async (parent, args) => {
+            return await models.Note.findById(args.id)
         }
     },
     Mutation: {
-        newNote: ( parent, args ) => {
-            let noteValue = {
-                id: String(notes.length + 1),
+        newNote: async (parent, args) => {
+            return await models.Note.create({
                 content: args.content,
                 author: 'Pa Pa'
-            }
-            notes.push(noteValue)
-            return noteValue
+            })
         }
     }
 }
