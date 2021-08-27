@@ -1,3 +1,7 @@
+const depthLimit = require('graphql-depth-limit');
+const { createComplexityLimitRule } = require('graphql-validation-complexity');
+const cors = require('cors');
+const helmet = require('helmet')
 const express = require('express');
 const { ApolloServer} = require('apollo-server-express')
 require('dotenv').config()
@@ -27,22 +31,23 @@ const port = process.env.PORT || 4000
 const DB_HOST = process.env.DB_HOST
 
 const app = express();
+app.use(helmet());
+app.use(cors());
 
 // Подключаем БД
 db.connect(DB_HOST)
 
-// Настраиваем Apollo Server
+// Обновляем код ApolloServer, добавив validationRules
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }) => {
-        // Получаем токен пользователя из заголовков
+    validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
+    context: async ({ req }) => {
+        // Получаем из заголовков токен пользователя
         const token = req.headers.authorization;
-        // Пытаемся извлечь пользователя с помощью токена
-        const user = getUser(token);
-        // Пока что будем выводить информацию о пользователе в консоль:
-        console.log(user);
-        // Добавляем модели БД и пользователя в контекст 
+        // Пробуем извлечь пользователя с помощью токена
+        const user = await getUser(token);
+        // Добавляем модели БД и пользователя в контекст
         return { models, user };
     }
 })
