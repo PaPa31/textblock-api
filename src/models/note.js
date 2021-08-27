@@ -11,10 +11,22 @@ const noteSchema = new mongoose.Schema(
         author: {
             type: String,
             required: true
-        }
+        },
+        // Добавляем свойство favoriteCount
+        favoriteCount: {
+            type: Number,
+            default: 0
+        },
+        // Добавляем свойство favoritedBy
+        favoritedBy: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ]
     },
     {
-        // Присваиваем поля createdAt и updatedAt с типом данных
+        // Присваиваем поля createdAt и updatedAt с типом Date
         timestamps: true
     }
 )
