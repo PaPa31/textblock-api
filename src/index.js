@@ -55,5 +55,5 @@ const server = new ApolloServer({
 // Применяем промежуточное ПО Apollo GraphQL и указываем путь к /api
 server.applyMiddleware({ app, path: '/api' })
 
-app.get('/', (req, res) => res.send('Hello Web Server!!!!'));
+// app.get('/', (req, res) => res.send('Hello Web Server!!!!'));
 app.listen(port, () => console.log(`GraphQL Server running at http://localhost:${port}${server.graphqlPath}`));
